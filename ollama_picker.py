@@ -3,6 +3,7 @@
 
 import logging
 import random
+import re
 
 import httpx
 
@@ -23,25 +24,30 @@ _SYSTEM_PROMPT = f"""\
 {_NUMBERED}
 
 Правила:
-- Прочитай сообщение пользователя.
-- Выбери из списка фразу, которая максимально уместна и раздражающа именно в этом контексте.
-- Ответь ТОЛЬКО числом — номером выбранной фразы. Никакого другого текста.
-- Если не можешь выбрать — напиши 0.
+- Прочитай сообщение пользователя внимательно.
+- В одном предложении определи: о чём просят, какие эмоции выражены, чего ждут в ответ.
+- Выбери фразу, которая максимально раздражает именно в этом контексте — игнорирует суть, обесценивает или уклоняется.
+- Напиши рассуждение строго в формате: МЫСЛЬ: <одно предложение>
+- Затем напиши: ОТВЕТ: <только число>
+- Никакого другого текста после ОТВЕТ.
 """
+
+# Matches "ОТВЕТ: 17" anywhere in the response
+_ANSWER_RE = re.compile(r"ОТВЕТ:\s*(\d+)")
 
 
 async def pick_phrase(user_message: str) -> str:
     """Ask Ollama to pick the most contextually annoying phrase.
     Falls back to random.choice on any error."""
-    prompt = f"Сообщение пользователя: «{user_message}»\nНомер фразы:"
+    prompt = f"Сообщение пользователя: «{user_message}»"
     payload = {
         "model": OLLAMA_MODEL,
         "system": _SYSTEM_PROMPT,
         "prompt": prompt,
         "stream": False,
         "options": {
-            "temperature": 0.3,
-            "num_predict": 8,
+            "temperature": 0.2,
+            "num_predict": 64,
         },
     }
     try:
@@ -50,10 +56,14 @@ async def pick_phrase(user_message: str) -> str:
             resp.raise_for_status()
             raw = resp.json().get("response", "").strip()
             logger.debug("Ollama raw response: %r", raw)
-            index = int("".join(c for c in raw if c.isdigit()))
-            if 0 <= index < len(PHRASES):
-                return PHRASES[index]
-            logger.warning("Ollama returned out-of-range index %d, falling back", index)
+            match = _ANSWER_RE.search(raw)
+            if match:
+                index = int(match.group(1))
+                if 0 <= index < len(PHRASES):
+                    return PHRASES[index]
+                logger.warning("Ollama returned out-of-range index %d, falling back", index)
+            else:
+                logger.warning("No ОТВЕТ: found in Ollama response, falling back")
     except Exception as exc:
         logger.warning("Ollama pick failed (%s), falling back to random", exc)
     return random.choice(PHRASES)
