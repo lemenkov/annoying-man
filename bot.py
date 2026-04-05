@@ -4,7 +4,6 @@
 
 import asyncio
 import logging
-import sys
 
 from telegram import Update
 from telegram.error import NetworkError, TimedOut
@@ -52,8 +51,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 
 def main() -> None:
-    if sys.version_info >= (3, 13):
-        asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
