@@ -9,7 +9,7 @@ from telegram import Update
 from telegram.error import NetworkError, TimedOut
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
-from ollama_picker import pick_phrase
+from ollama_picker import check_ollama, pick_phrase
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -21,7 +21,6 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("httpcore").setLevel(logging.WARNING)
 logging.getLogger("telegram").setLevel(logging.WARNING)
 logging.getLogger("apscheduler").setLevel(logging.WARNING)
-
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +64,7 @@ def main() -> None:
     app.add_handler(CommandHandler("help", cmd_help))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
+    loop.run_until_complete(check_ollama())
     logger.info("Bot started")
     app.run_polling()
 
