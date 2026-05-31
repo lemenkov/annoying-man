@@ -16,8 +16,12 @@ logging.basicConfig(
     format="%(message)s",
 )
 
-# Suppress noisy httpx polling logs
+# Suppress noisy polling logs
 logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
+logging.getLogger("telegram").setLevel(logging.WARNING)
+logging.getLogger("apscheduler").setLevel(logging.WARNING)
+
 
 logger = logging.getLogger(__name__)
 
