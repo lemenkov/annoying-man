@@ -65,5 +65,6 @@ async def pick_phrase(user_message: str) -> str:
             else:
                 logger.warning("No ОТВЕТ: found in Ollama response, falling back")
     except Exception as exc:
-        logger.warning("Ollama pick failed (%s), falling back to random", exc)
+        logger.debug("Ollama pick exception", exc_info=True)
+        logger.warning("Ollama pick failed (%s: %s), falling back to random", type(exc).__name__, exc)
     return random.choice(PHRASES)
