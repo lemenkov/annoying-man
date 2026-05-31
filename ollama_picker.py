@@ -35,6 +35,21 @@ _SYSTEM_PROMPT = f"""\
 # Matches "ОТВЕТ: 17" anywhere in the response
 _ANSWER_RE = re.compile(r"ОТВЕТ:\s*(\d+)")
 
+OLLAMA_HEALTH_URL = "http://localhost:11434/"
+
+
+async def check_ollama() -> bool:
+    """Check if Ollama is reachable. Call once at bot startup."""
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.head(OLLAMA_HEALTH_URL)
+            resp.raise_for_status()
+        logger.info("Ollama is up and serving at %s", OLLAMA_HEALTH_URL)
+        return True
+    except Exception as exc:
+        logger.warning("Ollama is NOT reachable (%s: %s) — will fall back to random phrases", type(exc).__name__, exc)
+        return False
+
 
 async def pick_phrase(user_message: str) -> str:
     """Ask Ollama to pick the most contextually annoying phrase.
@@ -51,7 +66,7 @@ async def pick_phrase(user_message: str) -> str:
         },
     }
     try:
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(OLLAMA_URL, json=payload)
             resp.raise_for_status()
             raw = resp.json().get("response", "").strip()
@@ -64,6 +79,8 @@ async def pick_phrase(user_message: str) -> str:
                 logger.warning("Ollama returned out-of-range index %d, falling back", index)
             else:
                 logger.warning("No ОТВЕТ: found in Ollama response, falling back")
+    except httpx.ReadTimeout:
+        logger.debug("Ollama timed out (model cold?), falling back to random")
     except Exception as exc:
         logger.debug("Ollama pick exception", exc_info=True)
         logger.warning("Ollama pick failed (%s: %s), falling back to random", type(exc).__name__, exc)
