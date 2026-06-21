@@ -1,2 +1,4 @@
+# SPDX-FileCopyrightText: 2026 Peter Lemenkov <lemenkov@gmail.com>
+# SPDX-License-Identifier: MIT
 python-telegram-bot>=21.0
 httpx>=0.27.0
