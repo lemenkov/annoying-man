@@ -24,7 +24,7 @@ logging.getLogger("apscheduler").setLevel(logging.WARNING)
 
 logger = logging.getLogger(__name__)
 
-BOT_TOKEN = "YOUR_BOT_TOKEN_HERE"
+BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
 
 
 async def handle_error(update: object, context: ContextTypes.DEFAULT_TYPE) -> None:
