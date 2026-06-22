@@ -1,0 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Peter Lemenkov <lemenkov@gmail.com>
+# SPDX-License-Identifier: MIT
+
+DEEPSEEK_API_KEY=sk-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+PICKER_BACKEND=deepseek
+TELEGRAM_BOT_TOKEN = YOUR_BOT_TOKEN_HERE

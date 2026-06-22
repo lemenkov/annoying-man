@@ -4,12 +4,20 @@
 
 import asyncio
 import logging
+import os
 
 from telegram import Update
 from telegram.error import NetworkError, TimedOut
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
 
-from ollama_picker import check_ollama, pick_phrase
+BACKEND = os.environ.get("PICKER_BACKEND", "ollama").lower()
+
+if BACKEND == "deepseek":
+    from deepseek_picker import check_deepseek as check_backend
+    from deepseek_picker import pick_phrase
+else:
+    from ollama_picker import check_ollama as check_backend
+    from ollama_picker import pick_phrase
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -64,7 +72,7 @@ def main() -> None:
     app.add_handler(CommandHandler("help", cmd_help))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
-    loop.run_until_complete(check_ollama())
+    loop.run_until_complete(check_backend())
     logger.info("Bot started")
     app.run_polling()
 
