@@ -68,8 +68,8 @@ async def pick_phrase(user_message: str) -> str:
             {"role": "system", "content": _SYSTEM_PROMPT},
             {"role": "user", "content": prompt}
         ],
-        "temperature": 0.2,
-        "max_tokens": 64,
+        "temperature": 0.8,
+        "max_tokens": 120,
     }
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
