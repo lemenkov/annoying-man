@@ -8,7 +8,13 @@ import os
 
 from telegram import Update
 from telegram.error import NetworkError, TimedOut
-from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes, MessageHandler, filters
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    ContextTypes,
+    MessageHandler,
+    filters,
+)
 
 BACKEND = os.environ.get("PICKER_BACKEND", "ollama").lower()
 
@@ -49,9 +55,7 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 async def cmd_help(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    await update.message.reply_text(
-        "Просто напиши что-нибудь. Не жди многого."
-    )
+    await update.message.reply_text("Просто напиши что-нибудь. Не жди многого.")
 
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2025 Peter Lemenkov <lemenkov@gmail.com>
+# SPDX-License-Identifier: MIT
+
+target-version = "py313"
+
+[lint]
+ignore = [
+    # Top-level handler deliberately catches everything so the bot survives
+    # unexpected errors and reports them to the user.
+    "BLE001",
+]

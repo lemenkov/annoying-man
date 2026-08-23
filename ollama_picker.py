@@ -47,7 +47,11 @@ async def check_ollama() -> bool:
         logger.info("Ollama is up and serving at %s", OLLAMA_HEALTH_URL)
         return True
     except Exception as exc:
-        logger.warning("Ollama is NOT reachable (%s: %s) — will fall back to random phrases", type(exc).__name__, exc)
+        logger.warning(
+            "Ollama is NOT reachable (%s: %s) — will fall back to random phrases",
+            type(exc).__name__,
+            exc,
+        )
         return False
 
 
@@ -76,12 +80,18 @@ async def pick_phrase(user_message: str) -> str:
                 index = int(match.group(1))
                 if 0 <= index < len(PHRASES):
                     return PHRASES[index]
-                logger.warning("Ollama returned out-of-range index %d, falling back", index)
+                logger.warning(
+                    "Ollama returned out-of-range index %d, falling back", index
+                )
             else:
                 logger.warning("No ОТВЕТ: found in Ollama response, falling back")
     except httpx.ReadTimeout:
         logger.debug("Ollama timed out (model cold?), falling back to random")
     except Exception as exc:
         logger.debug("Ollama pick exception", exc_info=True)
-        logger.warning("Ollama pick failed (%s: %s), falling back to random", type(exc).__name__, exc)
+        logger.warning(
+            "Ollama pick failed (%s: %s), falling back to random",
+            type(exc).__name__,
+            exc,
+        )
     return random.choice(PHRASES)

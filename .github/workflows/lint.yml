@@ -1,0 +1,50 @@
+# SPDX-FileCopyrightText: © 2026 Peter Lemenkov
+# SPDX-License-Identifier: CC0-1.0
+
+name: Lint
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - '.github/dependabot.yml'
+      - '.github/workflows/lint.yml'
+      - '.github/workflows/reuse.yml'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'LICENSES/**'
+      - 'README.md'
+      - 'annoying-bot.service'
+      - 'annoying-bot.sysconfig'
+      - 'requirements.txt'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - '.github/dependabot.yml'
+      - '.github/workflows/lint.yml'
+      - '.github/workflows/reuse.yml'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'LICENSES/**'
+      - 'README.md'
+      - 'annoying-bot.service'
+      - 'annoying-bot.sysconfig'
+      - 'requirements.txt'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ruff:
+    name: ruff (lint + format)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.10"
+      - run: pip install ruff
+      - run: ruff check ./bot.py ./deepseek_picker.py ./ollama_picker.py ./phrases.py
+      - run: ruff format --check ./bot.py ./deepseek_picker.py ./ollama_picker.py ./phrases.py

@@ -1,11 +1,13 @@
 # SPDX-FileCopyrightText: 2026 Peter Lemenkov <lemenkov@gmail.com>
 # SPDX-License-Identifier: MIT
 
-import os
 import logging
-import re
+import os
 import random
+import re
+
 import httpx
+
 from phrases import PHRASES
 
 logger = logging.getLogger(__name__)
@@ -31,6 +33,7 @@ _SYSTEM_PROMPT = f"""\
 
 _ANSWER_RE = re.compile(r"ОТВЕТ:\s*(\d+)")
 
+
 async def check_deepseek() -> bool:
     """Проверяет доступность DeepSeek API."""
     if not DEEPSEEK_API_KEY:
@@ -45,8 +48,8 @@ async def check_deepseek() -> bool:
                 json={
                     "model": "deepseek-chat",
                     "messages": [{"role": "user", "content": "Привет"}],
-                    "max_tokens": 5
-                }
+                    "max_tokens": 5,
+                },
             )
             resp.raise_for_status()
             logger.info("DeepSeek API is reachable")
@@ -54,6 +57,7 @@ async def check_deepseek() -> bool:
     except Exception as e:
         logger.warning(f"DeepSeek API is NOT reachable: {e}")
         return False
+
 
 async def pick_phrase(user_message: str) -> str:
     """Отправляет запрос в DeepSeek и возвращает выбранную фразу."""
@@ -66,7 +70,7 @@ async def pick_phrase(user_message: str) -> str:
         "model": "deepseek-chat",
         "messages": [
             {"role": "system", "content": _SYSTEM_PROMPT},
-            {"role": "user", "content": prompt}
+            {"role": "user", "content": prompt},
         ],
         "temperature": 0.8,
         "max_tokens": 120,
@@ -77,9 +81,9 @@ async def pick_phrase(user_message: str) -> str:
                 DEEPSEEK_URL,
                 headers={
                     "Authorization": f"Bearer {DEEPSEEK_API_KEY}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
-                json=payload
+                json=payload,
             )
             resp.raise_for_status()
             data = resp.json()
